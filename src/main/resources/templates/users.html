@@ -80,34 +80,44 @@
 				Filter:&nbsp;
 				<input type="search" name="keyword" class="form-control" th:value="${keyword != null ? keyword : ''}" required="required"/>
 				&nbsp;&nbsp;
-				<input type="submit" value="Search" class="btn btn-primary" />
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-search"></i>
+				</button>
 				&nbsp;&nbsp;
-				<input type="button" value="Clear" class="btn btn-secondary" onclick="clearFilter()" />
+				<button type="button" class="btn btn-secondary" onclick="clearFilter()" >
+					<i class="fas fa-eraser"></i>
+				</button>
 			</form>
 		</div>
 		
-		<div>
+		<div class="full-details">
 			<table class="table table-bordered table-striped table-hover table-responsive-xl">
 				<thead class="thead-dark">
 					<tr>
-						<th th:replace="fragments :: column_link('id', 'User Id')"/>
+						<th class="hideable-column">
+							<th th:replace="fragments :: column_link('id', 'User Id', 'tag')"/>
+						</th>
+						
 						<th>Photos</th>
-						<th th:replace="fragments :: column_link('email', 'E-mail')"/>
-						<th th:replace="fragments :: column_link('firstName', 'First Name')"/>
-						<th th:replace="fragments :: column_link('lastName', 'Last name')"/>
+						
+						<th class="hideable-column">
+							<th th:replace="fragments :: column_link('email', 'E-mail', 'tag')"/>
+						</th>
+						<th th:replace="fragments :: column_link('firstName', 'First Name', 'none')"/>
+						<th th:replace="fragments :: column_link('lastName', 'Last name', 'none')"/>
 						<th>Roles</th>
-						<th th:replace="fragments :: column_link('enabled', 'Enabled')"/>
+						<th th:replace="fragments :: column_link('enabled', 'Enabled', 'none')"/>
 						<th></th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr th:each="user: ${listUsers}">
-						<td>[[${user.id}]]</td>
+						<td class="hideable-column">[[${user.id}]]</td>
 						<td>
 							<span th:if="${user.photos == null}" class="fas fa-portrait fa-3x icon-silver"></span>
 							<img th:if="${user.photos != null}" th:src="@{${user.photosImagePath}}" style="width: 100px" />
 						</td>
-						<td>[[${user.email}]]</td>
+						<td class="hideable-column">[[${user.email}]]</td>
 						<td>[[${user.firstName}]]</td>
 						<td>[[${user.lastName}]]</td>
 						<td>[[${user.roles}]]</td>
@@ -126,6 +136,30 @@
 					</tr>
 				</tbody>
 			</table>
+		</div>
+		
+		<div class="less-details">
+			<div th:each="user : ${listUsers}" class="row m-1">
+				<div class="col-4">
+					<span th:if="${user.photos == null}" class="fas fa-portrait fa-3x icon-silver"></span>
+					<img th:if="${user.photos != null}" th:src="@{${user.photosImagePath}}" style="width: 100px" />
+				</div>
+				<div class="col-8">
+					<div>[[${user.fullName}]]</div>
+					<div>[[${user.roles}]]</div>
+					<div class="mt-1">
+						<a th:if="${user.enabled == true}" class="fas fa-check-circle fa-2x icon-green" 
+							th:href="@{'/users/' + ${user.id} + '/enabled/false'}"></a>
+						<a th:if="${user.enabled == false}" class="fas fa-circle fa-2x icon-dark" 
+							th:href="@{'/users/' + ${user.id} + '/enabled/true'}"></a>
+						<a class="fas fa-edit fa-2x icon-green" th:href="@{'/users/edit/' + ${user.id}}" title="Edit this user"></a>
+							&nbsp; 
+						<a class="fas fa-trash fa-2x icon-dark link-delete" th:href="@{'/users/delete/' + ${user.id}}" 
+							th:userId="${user.id}" title="Delete this user"></a>
+					</div>
+				</div>
+			</div>
+			<div>&nbsp;</div>
 		</div>
 		
 		<div class="text-center m-1" th:if="${totalItems > 0}">
