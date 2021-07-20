@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head('Categories - Shopme Admin')" />
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: menu"></div>
+		<div>
+			<h2>Manage Categories</h2>
+			<a th:href="@{/categories/new}" class="fas fa-user-plus fa-2x icon-dark mr-2"></a>
+			<a th:href="@{/categories/export/csv}" class="fas fa-file-csv fa-2x icon-dark mr-2"></a>
+			<a th:href="@{/categories/export/excel}" class="fas fa-file-excel fa-2x icon-dark mr-2"></a>
+			<a th:href="@{/categories/export/pdf}" class="fas fa-file-pdf fa-2x icon-dark"></a>
+		</div>
+		
+		<div th:if="${message != null}" class="alert alert-success text-center">
+			[[${message}]]
+		</div>
+		
+		<div>
+			<form th:action="@{/categories/page/1}" class="form-inline m-3">
+				<input type="hidden" name="sortField" th:value="${sortField}"/>
+				<input type="hidden" name="sortDir" th:value="${sortDir}"/>
+				Filter:&nbsp;
+				<input type="search" name="keyword" class="form-control" th:value="${keyword != null ? keyword : ''}" required="required"/>
+				&nbsp;&nbsp;
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-search"></i>
+				</button>
+				&nbsp;&nbsp;
+				<button type="button" class="btn btn-secondary" onclick="clearFilter()" >
+					<i class="fas fa-eraser"></i>
+				</button>
+			</form>
+		</div>
+		
+		<div class="full-details">
+			<table class="table table-bordered table-striped table-hover table-responsive-xl">
+				<thead class="thead-dark">
+					<tr>
+						<th>ID</th>
+						<th>Category Image</th>
+						<th>Category Name</th>
+						<th>Alias</th>
+						<th>Enabled</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="cat: ${listCategories}">
+						<td>[[${cat.id}]]</td>
+						<td></td>
+						<td>[[${cat.name}]]</td>
+						<td>[[${cat.alias}]]</td>
+						<td>
+							<div th:replace="fragments :: category_status(${cat})" />
+						</td>
+						<td>
+							<div th:replace="fragments :: category_actions(${cat})" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="less-details">
+			<div th:each="user : ${listUsers}" class="row m-1">
+				<div class="col-4">
+					<span th:if="${user.photos == null}" class="fas fa-portrait fa-3x icon-silver"></span>
+					<img th:if="${user.photos != null}" th:src="@{${user.photosImagePath}}" style="width: 100px" />
+				</div>
+				<div class="col-8">
+					<div>[[${user.fullName}]]</div>
+					<div>[[${user.roles}]]</div>
+					<div class="mt-1">
+						<a th:if="${user.enabled == true}" class="fas fa-check-circle fa-2x icon-green" 
+							th:href="@{'/users/' + ${user.id} + '/enabled/false'}"></a>
+						<a th:if="${user.enabled == false}" class="fas fa-circle fa-2x icon-dark" 
+							th:href="@{'/users/' + ${user.id} + '/enabled/true'}"></a>
+						<a class="fas fa-edit fa-2x icon-green" th:href="@{'/users/edit/' + ${user.id}}" title="Edit this user"></a>
+							&nbsp; 
+						<a class="fas fa-trash fa-2x icon-dark link-delete" th:href="@{'/users/delete/' + ${user.id}}" 
+							th:userId="${user.id}" title="Delete this user"></a>
+					</div>
+				</div>
+			</div>
+			<div>&nbsp;</div>
+		</div>
+		
+		<div class="text-center m-1" th:if="${totalItems > 0}">
+			<span>Showing users # [[${startCount}]] to [[${endCount}]] of [[${totalItems}]]</span>
+		</div>
+		<div class="text-center m-1" th:unless="${totalItems > 0}">
+			<span>No users found</span>
+		</div>
+		
+		<div>
+			<nav>
+				<ul class="pagination justify-content-center" th:if="${totalItems > 0}">
+					<li class="page-item" th:classappend="${currentPage == 1} ? disabled : ''">
+						<a th:replace="fragments :: page_link(1, 'First')"></a>
+					</li>
+					<li class="page-item" th:classappend="${currentPage == 1} ? disabled : ''">
+						<a th:replace="fragments :: page_link(${currentPage - 1}, 'Previous')"></a>
+					</li>
+					<li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${currentPage == i} ? active : ''">
+						<a th:replace="fragments :: page_link(${i}, ${i})"></a>
+					</li>
+					<li class="page-item" th:classappend="${currentPage >= totalPages} ? disabled : ''">
+						<a th:replace="fragments :: page_link(${currentPage + 1}, 'Next')"></a>
+					</li>
+					<li class="page-item" th:classappend="${currentPage >= totalPages} ? disabled : ''">
+						<a th:replace="fragments :: page_link(${totalPages}, 'Last')"></a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		
+		<div class="modal fade text-center" id="confirmModal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modalTitle">Delete Confirmation</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<span id="confirmText"></span>
+					</div>
+					<div class="modal-footer">
+						<a class="btn btn-success" href="" id="yesButton">Yes</a>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div th:replace="fragments :: footer"></div>
+	</div>
+</body>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('.link-delete').on('click', function(e) {
+			e.preventDefault();
+			let link = $(this);
+			let userId = link.attr('userId');
+			$('#yesButton').attr('href', link.attr('href'));
+			$('#confirmText').text('Are you sure you want to delete this user ID: ' + userId + '?');
+			$('#confirmModal').modal();
+		});
+	});
+	
+	function clearFilter() {
+		window.location = "[[@{/users}]]";
+	}
+</script>
+</html>

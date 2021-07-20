@@ -31,5 +31,17 @@
 		th:href="@{'/users/page/' + ${pageNum} + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir} + ${keyword != null ? '&keyword=' + keyword : ''}}">
 		[[${label}]]
 	</a>
+	<div th:fragment="category_status(cat)">
+		<a th:if="${cat.enabled == true}" class="fas fa-check-circle fa-2x icon-green" 
+			th:href="@{'/cateories/' + ${cat.id} + '/enabled/false'}"></a>
+		<a th:if="${cat.enabled == false}" class="fas fa-circle fa-2x icon-dark" 
+			th:href="@{'/cateories/' + ${cat.id} + '/enabled/true'}"></a>
+	</div>
+	<div th:fragment="category_actions(cat)">
+		<a class="fas fa-edit fa-2x icon-green" th:href="@{'/categories/edit/' + ${cat.id}}" title="Edit this category"></a>
+		&nbsp; 
+		<a class="fas fa-trash fa-2x icon-dark link-delete" th:href="@{'/categories/delete/' + ${cat.id}}" 
+			th:userId="${cat.id}" title="Delete this category"></a>
+	</div>
 </body>
 </html>
