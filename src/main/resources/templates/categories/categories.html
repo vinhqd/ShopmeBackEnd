@@ -6,10 +6,8 @@
 		<div th:replace="navigation :: menu"></div>
 		<div>
 			<h2>Manage Categories</h2>
-			<a th:href="@{/categories/new}" class="fas fa-user-plus fa-2x icon-dark mr-2"></a>
+			<a th:href="@{/categories/new}" class="fas fa-folder-plus fa-2x icon-dark mr-2"></a>
 			<a th:href="@{/categories/export/csv}" class="fas fa-file-csv fa-2x icon-dark mr-2"></a>
-			<a th:href="@{/categories/export/excel}" class="fas fa-file-excel fa-2x icon-dark mr-2"></a>
-			<a th:href="@{/categories/export/pdf}" class="fas fa-file-pdf fa-2x icon-dark"></a>
 		</div>
 		
 		<div th:if="${message != null}" class="alert alert-success text-center">
@@ -48,7 +46,9 @@
 				<tbody>
 					<tr th:each="cat: ${listCategories}">
 						<td>[[${cat.id}]]</td>
-						<td></td>
+						<td>
+							<img alt="Category Image" th:src="@{${cat.imagePath}}" style="width: 100px" class="img-fluid" />
+						</td>
 						<td>[[${cat.name}]]</td>
 						<td>[[${cat.alias}]]</td>
 						<td>
