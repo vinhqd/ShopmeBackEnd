@@ -7,10 +7,12 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.shopme.common.entity.Category;
 
 @Service
+@Transactional
 public class CategoryService {
 	
 	@Autowired
@@ -96,6 +98,34 @@ public class CategoryService {
 		} catch (NoSuchElementException ex) {
 			throw new CategoryNotFoundException("Could not find any Category with ID: " + id);
 		}
+	}
+	
+	public void enabledStatus(Integer id, boolean status) {
+		repo.updateEnabledStatus(id, status);
+	}
+	
+	public String checkUnique(Integer id, String name, String alias) {
+		boolean isCreatingNew = (id == null || id == 0);
+		Category categoryByName = repo.findByName(name);
+		if (isCreatingNew) {
+			if (categoryByName != null) {
+				return "DuplicateName";
+			} else {
+				Category categoryByAlias = repo.findByAlias(alias);
+				if (categoryByAlias != null) {
+					return "DuplicateAlias";
+				}
+			}
+		} else {
+			if (categoryByName != null && categoryByName.getId() != id) {
+				return "DuplicateName";
+			}
+			Category categoryByAlias = repo.findByAlias(alias);
+			if (categoryByAlias != null && categoryByAlias.getId() != id) {
+				return "DuplicateAlias";
+			}
+		}
+		return "OK";
 	}
 
 }

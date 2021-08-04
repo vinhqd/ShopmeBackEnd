@@ -80,5 +80,21 @@ public class CategoryController {
 			return "redirect:/categories";
 		}
 	}
+	
+	@GetMapping("{id}/enabled/{status}")
+	public String updateEnabled(@PathVariable("id") Integer id, @PathVariable("status") boolean status,
+			RedirectAttributes ra) {
+		try {
+			service.get(id);
+			service.enabledStatus(id, status);
+			String enabled = status ? "enabled" : "disabled";
+			String message = "Category (ID: " + id + ") has been " + enabled;
+			ra.addFlashAttribute("message", message);
+			return "redirect:/categories";
+		} catch (CategoryNotFoundException e) {
+			ra.addFlashAttribute("message", e.getMessage());
+			return "redirect:/categories";
+		}
+	}
 
 }

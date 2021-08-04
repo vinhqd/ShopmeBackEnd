@@ -80,5 +80,28 @@ public class CategoryRepositoryTests {
 		
 		rootCategories.forEach(cat -> System.out.println(cat.getName()));
 	}
+	
+	@Test
+	public void testUpdateEnabledStatus() {
+		repo.updateEnabledStatus(16, true);
+	}
+	
+	@Test
+	public void testFindByName() {
+		String name = "computers";
+		Category category = repo.findByName(name);
+		
+		assertThat(category).isNotNull();
+		assertThat(category.getName()).isEqualToIgnoringCase(name);
+	}
+	
+	@Test
+	public void testFindByAlias() {
+		String alias = "computers";
+		Category category = repo.findByAlias(alias);
+		
+		assertThat(category).isNotNull();
+		assertThat(category.getName()).isEqualToIgnoringCase(alias);
+	}
 
 }
